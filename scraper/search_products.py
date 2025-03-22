@@ -70,6 +70,6 @@ async def hybrid_search(request: Request):
 
     except Exception as e:
         return {"error": str(e)}
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def root():
     return {"message": "🚀 Product Hunt Search API is running!"}
