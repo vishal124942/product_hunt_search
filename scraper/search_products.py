@@ -6,7 +6,7 @@ from pinecone import Pinecone
 from dotenv import load_dotenv
 import os
 
-# Load env vars
+# Load environment variables
 load_dotenv()
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
@@ -14,7 +14,7 @@ PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
 # Init FastAPI app
 app = FastAPI()
 
-# CORS so frontend (localhost:3000) can access
+# Enable CORS for frontend access
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -22,9 +22,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Init model + Pinecone
-model = SentenceTransformer("all-MiniLM-L6-v2")
+# ✅ Use lightweight transformer model
+model = SentenceTransformer("paraphrase-MiniLM-L3-v2")
 sparse_encoder = BM25Encoder().default()
+
+# Init Pinecone client
 pc = Pinecone(api_key=PINECONE_API_KEY)
 index = pc.Index(PINECONE_INDEX_NAME)
 
@@ -37,7 +39,7 @@ async def hybrid_search(request: Request):
         return {"error": "Query is missing"}
 
     try:
-        # Embed query
+        # Create dense + sparse embeddings
         dense = model.encode(query, normalize_embeddings=True).tolist()
         sparse = sparse_encoder.encode_documents([query])[0]
 
@@ -52,7 +54,7 @@ async def hybrid_search(request: Request):
         # Format response
         formatted_results = []
         for i, match in enumerate(results["matches"], 1):
-            meta = match["metadata"]
+            meta = match.get("metadata", {})
 
             formatted_results.append({
                 "rank": i,
