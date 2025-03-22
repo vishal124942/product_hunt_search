@@ -4,5 +4,5 @@ fastapi
 uvicorn
 python-dotenv
 sentence-transformers
-pinecone-client
+pinecone
 pinecone-text
