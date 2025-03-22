@@ -1,2 +1,8 @@
 playwright
 nest_asyncio
+fastapi
+uvicorn
+python-dotenv
+sentence-transformers
+pinecone-client
+pinecone-text
