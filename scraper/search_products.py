@@ -1,7 +1,5 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from sentence_transformers import SentenceTransformer
-from pinecone_text.sparse import BM25Encoder
 from pinecone import Pinecone
 from dotenv import load_dotenv
 import os
@@ -14,7 +12,7 @@ PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
 # Init FastAPI app
 app = FastAPI()
 
-# Enable CORS for frontend access
+# Enable CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -22,11 +20,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ✅ Use lightweight transformer model
-model = SentenceTransformer("paraphrase-MiniLM-L3-v2")
-sparse_encoder = BM25Encoder().default()
-
-# Init Pinecone client
+# Init Pinecone client (safe globally)
 pc = Pinecone(api_key=PINECONE_API_KEY)
 index = pc.Index(PINECONE_INDEX_NAME)
 
@@ -39,11 +33,17 @@ async def hybrid_search(request: Request):
         return {"error": "Query is missing"}
 
     try:
-        # Create dense + sparse embeddings
+        # ✅ Lazy-load imports inside the route
+        from sentence_transformers import SentenceTransformer
+        from pinecone_text.sparse import BM25Encoder
+
+        # ✅ Init lightweight model + encoder here
+        model = SentenceTransformer("paraphrase-MiniLM-L3-v2")
+        sparse_encoder = BM25Encoder().default()
+
         dense = model.encode(query, normalize_embeddings=True).tolist()
         sparse = sparse_encoder.encode_documents([query])[0]
 
-        # Query Pinecone
         results = index.query(
             vector=dense,
             sparse_vector=sparse,
@@ -51,7 +51,6 @@ async def hybrid_search(request: Request):
             include_metadata=True
         )
 
-        # Format response
         formatted_results = []
         for i, match in enumerate(results["matches"], 1):
             meta = match.get("metadata", {})
