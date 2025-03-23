@@ -1,75 +1,82 @@
-from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
+import streamlit as st
+from sentence_transformers import SentenceTransformer
+from pinecone_text.sparse import BM25Encoder
 from pinecone import Pinecone
 from dotenv import load_dotenv
 import os
+import nltk
+
+# Download required NLTK data
+nltk.download("punkt")
+nltk.download("stopwords")
 
 # Load environment variables
 load_dotenv()
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
 
-# Init FastAPI app
-app = FastAPI()
+# Initialize model and Pinecone
+model = SentenceTransformer("paraphrase-MiniLM-L3-v2")  # lightweight
+sparse_encoder = BM25Encoder().default()
 
-# Enable CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Init Pinecone client (safe globally)
 pc = Pinecone(api_key=PINECONE_API_KEY)
 index = pc.Index(PINECONE_INDEX_NAME)
 
-@app.get("/search")
-async def hybrid_search(request: Request):
-    query = request.query_params.get("q", "")
-    top_k = int(request.query_params.get("limit", 15))
+# --- Streamlit UI ---
+st.set_page_config(page_title="Product Hunt Search", layout="centered")
 
-    if not query:
-        return {"error": "Query is missing"}
+# Optional styling
+st.markdown("""
+    <style>
+        .block-container {
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        .stImage > img {
+            border-radius: 8px;
+        }
+    </style>
+""", unsafe_allow_html=True)
 
-    try:
-        # ✅ Lazy-load imports inside the route
-        from sentence_transformers import SentenceTransformer
-        from pinecone_text.sparse import BM25Encoder
+# App title
+st.title("🔍 Product Hunt Hybrid Search")
 
-        # ✅ Init lightweight model + encoder here
-        model = SentenceTransformer("paraphrase-MiniLM-L3-v2")
-        sparse_encoder = BM25Encoder().default()
+# Query input
+query = st.text_input("Enter your product idea or query:")
 
+if query:
+    with st.spinner("🔎 Searching..."):
+        # Create dense and sparse vectors
         dense = model.encode(query, normalize_embeddings=True).tolist()
         sparse = sparse_encoder.encode_documents([query])[0]
 
+        # Query Pinecone
         results = index.query(
             vector=dense,
             sparse_vector=sparse,
-            top_k=top_k,
+            top_k=15,
             include_metadata=True
         )
 
-        formatted_results = []
+        st.subheader(f"✨ Results for: '{query}'")
+
         for i, match in enumerate(results["matches"], 1):
-            meta = match.get("metadata", {})
+            meta = match["metadata"]
+            with st.container():
+                cols = st.columns([1, 4])
 
-            formatted_results.append({
-                "rank": i,
-                "name": meta.get("name", "Unknown"),
-                "tagline": meta.get("tagline") or meta.get("header", "No tagline"),
-                "description": meta.get("description", "")[:400],
-                "tags": meta.get("tags", []),
-                "logo_url": meta.get("logo_url") or "https://via.placeholder.com/100",
-                "url": meta.get("url") or "#",
-                "score": round(match.get("score", 0), 4)
-            })
+                with cols[0]:
+                    st.image(
+                        meta.get("logo_url") or "https://via.placeholder.com/100",
+                        width=80
+                    )
 
-        return {"products": formatted_results}
+                with cols[1]:
+                    st.markdown(f"### {meta.get('name', 'Unknown')}")
+                    st.markdown(f"**{meta.get('tagline') or meta.get('header', '')}**")
+                    st.write(meta.get("description", "")[:300])
+                    st.markdown(f"**Tags**: `{', '.join(meta.get('tags', []))}`")
+                    st.markdown(f"[🔗 Visit Product]({meta.get('url', '#')})")
+                    st.markdown(f"**Score**: `{round(match.get('score', 0), 4)}`")
 
-    except Exception as e:
-        return {"error": str(e)}
-@app.api_route("/", methods=["GET", "HEAD"])
-def root():
-    return {"message": "🚀 Product Hunt Search API is running!"}
+                st.divider()
