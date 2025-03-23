@@ -48,7 +48,7 @@ export default function Home() {
   };
 
   return (
-    <main className="container mx-auto px-4 py-8">
+    <main className=" h-screen container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-6 text-center">TopHunt</h1>
         <p className="text-2xl font-bold text-center my-4">
@@ -117,12 +117,6 @@ export default function Home() {
                     </span>
                   ))}
                 </div>
-                {product.rating && (
-                  <div className="flex items-center gap-1 text-sm">
-                    <span className="text-yellow-500">★</span>
-                    <span>{product.rating}</span>
-                  </div>
-                )}
               </CardFooter>
             </Card>
           ))}
@@ -132,6 +126,9 @@ export default function Home() {
           <p className="text-muted-foreground">No results found for {query}</p>
         </div>
       ) : null}
+      <p className="text-center p-4">
+        An <span className="text-orange-500">Vishal Verma</span> Production :)
+      </p>
     </main>
   );
 }
