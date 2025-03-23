@@ -125,3 +125,8 @@
     @apply bg-[#FDF8F4] px-3 py-1.5 rounded-full text-sm text-gray-600 border border-gray-200;
   }
 }
+@media (min-width: 400px) and (max-width: 1023px) {
+  .production {
+    transform: translateY(620px);
+  }
+}

@@ -48,7 +48,7 @@ export default function Home() {
   };
 
   return (
-    <main className=" h-screen container mx-auto px-4 py-8">
+    <main className="sm:w-auto sm:h-screen h-screen container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-6 text-center">TopHunt</h1>
         <p className="text-2xl font-bold text-center my-4">
@@ -126,8 +126,8 @@ export default function Home() {
           <p className="text-muted-foreground">No results found for {query}</p>
         </div>
       ) : null}
-      <p className="text-center p-4">
-        An <span className="text-orange-500">Vishal Verma</span> Production :)
+      <p className="text-center p-4 production ">
+        An <span className="text-orange-500 ">Vishal Verma</span> Production :)
       </p>
     </main>
   );
