@@ -22,7 +22,7 @@ export default function AnimatedText() {
   }, []);
 
   return (
-    <div className="h-10 flex items-center text-lg font-medium text-red-400 text-center sm:">
+    <div className="h-10 flex items-center text-lg font-medium text-red-400 text-center animate">
       <AnimatePresence mode="wait">
         <motion.span
           key={searchExamples[index]}

@@ -42,7 +42,7 @@ export default function Home() {
   };
 
   return (
-    <main className="sm:w-auto sm:h-screen h-screen mx-auto px-4 py-8 ">
+    <main className="sm:w-auto sm:h-screen h-screen mx-auto px-4 py-8 bg-amber-50">
       <header
         className={`text-center ${
           !hasSearched ? "mb-8" : "mb-6 scale-90"
@@ -86,7 +86,7 @@ export default function Home() {
       </div>
 
       {!hasSearched && (
-        <div className="lg:flex fit text-center justify-center items-center content-center mb-6 gap-2 -translate-x-[13%]">
+        <div className="lg:flex fit text-center justify-center items-center content-center mb-6 gap-2 lg:-translate-x-[13%]">
           <div className="text-xl search">Search for</div>
           <AnimatedText />
         </div>
