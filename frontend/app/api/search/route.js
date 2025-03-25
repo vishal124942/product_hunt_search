@@ -36,7 +36,6 @@ export async function POST(request) {
       score: match.score,
       ...match.metadata,
     }));
-    console.log(cleanedResults);
     return Response.json({ products: cleanedResults });
   } catch (error) {
     console.error("Search error:", error);

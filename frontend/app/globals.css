@@ -126,7 +126,10 @@
   }
 }
 @media (min-width: 400px) and (max-width: 1023px) {
-  .production {
-    transform: translateY(620px);
+  .fit {
+    transform: translateX(20%);
+  }
+  .search {
+    transform: translateX(-10%);
   }
 }

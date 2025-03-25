@@ -4,7 +4,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 import asyncio
 from playwright.async_api import async_playwright
-LINKS_PATH = Path("product_links.txt")
+LINKS_PATH = Path("products_links.txt")
 OUTPUT_PATH = Path("products_data.json")
 CONCURRENCY = 20  
 async def scrape_product(page, url, i, total):
@@ -40,10 +40,16 @@ async def scrape_product(page, url, i, total):
         except:
             product["tags"] = []
 
-        # Logo
+        # Logo (prefer actual logo from ph-files domain)
         try:
-            logo = await page.locator("img[alt*='logo']").first.get_attribute("src")
-            product["logo_url"] = logo
+            all_imgs = await page.locator("img").all()
+            for img in all_imgs:
+                src = await img.get_attribute("src")
+                if src and "ph-files.imgix.net" in src:
+                    product["logo_url"] = src
+                    break
+            else:
+                product["logo_url"] = None
         except:
             product["logo_url"] = None
 
@@ -54,16 +60,15 @@ async def scrape_product(page, url, i, total):
         except:
             product["upvotes"] = None
 
-        print(f" Done: {product['name']}")
+        print(f"✅ Done: {product['name']}")
         return product
 
     except Exception as e:
-        print(f" Failed: {url} - {e}")
+        print(f"❌ Failed: {url} - {e}")
         return None
-
 async def enrich_from_links():
     if not LINKS_PATH.exists():
-        raise FileNotFoundError("product_links.txt not found.")
+        raise FileNotFoundError("products_links1.txt not found.")
     with open(LINKS_PATH, "r") as f:
         urls = [line.strip() for line in f.readlines() if line.strip()]
 
