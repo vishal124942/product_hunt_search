@@ -65,9 +65,9 @@
 }
 @media (min-width: 400px) and (max-width: 1023px) {
   .fit {
-    transform: translateX(35%);
+    translate: auto;
   }
   .search {
-    transform: translateX(-20%);
+    translate: auto;
   }
 }
