@@ -44,8 +44,8 @@
 }
 
 :root {
-  --yc-orange: #f33722;
-  --yc-orange-light: #ee5638;
+  --yc-red: #f33722;
+  --yc-red-light: #ee5638;
   --background: #fdf8f4;
   --foreground: #171717;
 }
@@ -61,10 +61,6 @@
 @layer components {
   .tag {
     @apply bg-[#FDF8F4] px-3 py-1.5 rounded-full text-sm text-gray-600 border border-gray-200;
-  }
-
-  .product-number {
-    @apply absolute -top-3 -left-3 bg-[var(--yc-orange)] text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm;
   }
 }
 @media (min-width: 400px) and (max-width: 1023px) {

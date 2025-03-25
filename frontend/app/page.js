@@ -42,7 +42,7 @@ export default function Home() {
   };
 
   return (
-    <main className="sm:w-auto sm:h-screen h-screen container mx-auto px-4 py-8">
+    <main className="sm:w-auto sm:h-screen h-screen mx-auto px-4 py-8 ">
       <header
         className={`text-center ${
           !hasSearched ? "mb-8" : "mb-6 scale-90"
@@ -117,13 +117,12 @@ export default function Home() {
                 )
               }
             >
-              <div className="product-number">{index + 1}</div>
               <div className="flex items-center gap-5 mb-5">
                 <div className="w-16 h-16 bg-red-400 rounded-full flex items-center justify-center text-xl font-semibold text-white">
                   {product.name[0]}
                 </div>
               </div>
-              <div className="text-[var(--yc-orange)] font-semibold mb-1">
+              <div className="text-[var(--yc-red)] font-semibold mb-1">
                 {product.name}
               </div>
               <p className="text-gray-600 text-sm leading-relaxed mb-4">
